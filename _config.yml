@@ -1,13 +1,13 @@
 # Site settings
-title: BY Blog
-SEOTitle: 柏荧的博客 | BY Blog
+title: DXD Blog
+SEOTitle: 段小段的博客 | DXD Blog
 header-img: img/post-bg-desk.jpg
-email: qiubaiying@gmail.com
+email: aihua0721@gmail.com
 description: "Every failure is leading towards success."
-keyword: "BY, BY Blog, 柏荧的博客, qiubaiying, 邱柏荧, iOS, Apple, iPhone"
+keyword: "DXD, DXD Blog, 段小段的博客, duanxiaoduan, 段小段, java, python, mysql"
 url: "http://qiubaiying.github.io"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
-github_repo: "https://github.com/qiubaiying/qiubaiying.github.io.git" # you code repository
+github_repo: "https://github.com/duanxiaoduan/duanxiaoduan.github.io.git" # you code repository
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
@@ -19,10 +19,10 @@ sidebar-avatar: /img/about-BY-gentle.jpg      # use absolute URL, seeing it's us
 # SNS settings
 RSS: false
 # weibo_username:     qiubaiying
-zhihu_username:     qiubaiying
-github_username:    qiubaiying
-facebook_username:  baiying.qiu.7
-jianshu_username:   e71990ada2fd
+zhihu_username:     duanxiaoduan
+github_username:    duanxiaoduan
+facebook_username:  duanxiaoduan
+#jianshu_username:   e71990ada2fd
 #twitter_username:   qiubaiying
 
 
