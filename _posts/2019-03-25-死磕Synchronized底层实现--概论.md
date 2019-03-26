@@ -4,7 +4,7 @@ title:      死磕Synchronized底层实现--概论
 subtitle:   Synchronized
 date:       2019-03-25
 author:     duanxiaoduan
-header-img: img/post-bg-design-spring.jpg
+header-img: img/post-bg-design-syn.jpg
 catalog: true
 tags:
     - Synchronized 底层实现
