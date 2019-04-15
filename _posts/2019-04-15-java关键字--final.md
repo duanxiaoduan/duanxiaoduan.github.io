@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      java关键字--final
-subtitle:   volatile
+subtitle:   final
 date:       2019-04-15
 author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
