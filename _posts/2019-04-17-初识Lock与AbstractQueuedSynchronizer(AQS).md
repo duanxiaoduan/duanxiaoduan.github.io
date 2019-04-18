@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      初识Lock与AbstractQueuedSynchronizer(AQS)
-subtitle:   
+subtitle:   AQS
 date:       2019-04-17
 author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
