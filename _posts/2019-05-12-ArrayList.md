@@ -1,3 +1,16 @@
+---
+layout:     post
+title:      ArrayList
+subtitle:   java
+date:       2019-05-12
+author:     duanxiaoduan
+header-img: img/post-bg-design-linux.jpg
+catalog: true
+tags:
+    - java集合
+---
+
+
 <!-- MarkdownTOC -->
 
 - [ArrayList简介](#arraylist简介)
