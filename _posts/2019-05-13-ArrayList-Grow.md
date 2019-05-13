@@ -2,7 +2,7 @@
 layout:     post
 title:      ArrayList-Grow
 subtitle:   java
-date:       2019-05-12
+date:       2019-05-13
 author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
 catalog: true
