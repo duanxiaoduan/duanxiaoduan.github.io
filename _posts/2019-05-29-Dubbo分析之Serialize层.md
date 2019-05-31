@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      Dubbo分析之Serialize层
-subtitle:   java
+subtitle:   dubbo
 date:       2019-05-29
 author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
