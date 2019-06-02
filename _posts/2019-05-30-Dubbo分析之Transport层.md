@@ -7,7 +7,7 @@ author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
 catalog: true
 tags:
-    - Dubbo
+    - dubbo
 ---
 
 前言
