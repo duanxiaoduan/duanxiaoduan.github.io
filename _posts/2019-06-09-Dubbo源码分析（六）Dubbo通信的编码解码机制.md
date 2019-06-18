@@ -7,7 +7,7 @@ author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
 catalog: true
 tags:
-    - Dubbo
+    - dubbo
 ---
 
 Dubbo源码分析（六）Dubbo通信的编码解码机制

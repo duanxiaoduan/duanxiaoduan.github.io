@@ -7,7 +7,7 @@ author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
 catalog: true
 tags:
-    - Dubbo
+    - dubbo
 ---
 
 Dubbo源码分析（三）Dubbo的服务引用Refer

@@ -7,7 +7,7 @@ author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
 catalog: true
 tags:
-    - Dubbo
+    - dubbo
 ---
 
 dubbo负载均衡代码分析1(leastactive策略)
