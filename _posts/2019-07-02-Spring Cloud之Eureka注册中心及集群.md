@@ -2,7 +2,7 @@
 layout:     post
 title:      Spring Cloud之Eureka注册中心及集群
 subtitle:   eureka
-date:       2019-07-01
+date:       2019-07-02
 author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
 catalog: true
