@@ -7,7 +7,7 @@ author:     duanxiaoduan
 header-img: img/post-bg-design-linux.jpg
 catalog: true
 tags:
-    - redis
+    - eureka
 ---
 
 Spring Cloud之Eureka注册中心及集群
