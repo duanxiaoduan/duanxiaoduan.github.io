@@ -48,47 +48,48 @@ MyBatis 源码解析：通过源码深入理解 SQL 的执行过程
     </dependency>
 
 获取 mapper 并操作数据库代码如下：
-
-    InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml"); 
-    SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder(). build(inputStream); 
-    SqlSession sqlSession = sqlSessionFactory.openSession(); 
-    LiveCourseMapper mapper = sqlSession.getMapper(LiveCourseMapper.class); 
-    List<LiveCourse> liveCourseList = mapper.getLiveCourseList();
-
+```java 
+InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml"); 
+SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder(). build(inputStream); 
+SqlSession sqlSession = sqlSessionFactory.openSession(); 
+LiveCourseMapper mapper = sqlSession.getMapper(LiveCourseMapper.class); 
+List<LiveCourse> liveCourseList = mapper.getLiveCourseList();
+```
 ### 三、配置文件加载
 
 配置文件加载最终还是通过 ClassLoader.getResourceAsStream 来加载文件，关键代码如下：
-
-    public static InputStream getResourceAsStream(ClassLoader loader, String resource) throws IOException { 
-        InputStream in = classLoaderWrapper.getResourceAsStream(resource, loader); 
-        if (in == null) { 
-            throw new IOException("Could not find resource " + resource); 
-        } 
-        return in; 
+```java 
+public static InputStream getResourceAsStream(ClassLoader loader, String resource) throws IOException { 
+    InputStream in = classLoaderWrapper.getResourceAsStream(resource, loader); 
+    if (in == null) { 
+        throw new IOException("Could not find resource " + resource); 
     } 
-    
-    InputStream getResourceAsStream(String resource, ClassLoader\[\] classLoader) { 
-        for (ClassLoader cl : classLoader) { 
-            if (null != cl) { // try to find the resource as passed 
-                InputStream returnValue = cl.getResourceAsStream(resource); // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource 
-                if (null == returnValue) { 
-                    returnValue = cl.getResourceAsStream("/" + resource); 
-                } 
-                if (null != returnValue) { 
-                    return returnValue; 
-                } 
+    return in; 
+} 
+
+InputStream getResourceAsStream(String resource, ClassLoader\[\] classLoader) { 
+    for (ClassLoader cl : classLoader) { 
+        if (null != cl) { // try to find the resource as passed 
+            InputStream returnValue = cl.getResourceAsStream(resource); // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource 
+            if (null == returnValue) { 
+                returnValue = cl.getResourceAsStream("/" + resource); 
+            } 
+            if (null != returnValue) { 
+                return returnValue; 
             } 
         } 
-        return null; 
-    }
-
+    } 
+    return null; 
+}
+```
 ### 四、配置文件解析
-
-    SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-
+```java 
+SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+```
 我们以 SqlSessionFactoryBuilder 为入口，看下 mybatis 是如何解析配置文件，并创建 SqlSessionFactory 的，SqlSessionFactoryBuilder.build 方法实现如下：
 
-    XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties); // 解析出 configuration 对象，并创建 SqlSessionFactory return build(parser.parse());
+    XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties); // 解析出 configuration 对象，并创建 SqlSessionFactory 
+    return build(parser.parse());
 
 重点为解析 configuration 对象，然后根据 configuration 创建 DefualtSqlSessionFactory。
 
@@ -246,7 +247,7 @@ Parse selectKey after includes and remove them。
 
 **（4）创建 sqlSource**
 
-SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
+    SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
 
 langDriver 默认为 XMLLanguageDriver，此处很重要，请允许我多列点代码：
 
