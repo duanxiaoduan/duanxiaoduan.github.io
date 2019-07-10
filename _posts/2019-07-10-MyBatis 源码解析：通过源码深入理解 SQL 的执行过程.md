@@ -59,7 +59,28 @@ MyBatis 源码解析：通过源码深入理解 SQL 的执行过程
 
 配置文件加载最终还是通过 ClassLoader.getResourceAsStream 来加载文件，关键代码如下：
 
-    public static InputStream getResourceAsStream(ClassLoader loader, String resource) throws IOException { InputStream in = classLoaderWrapper.getResourceAsStream(resource, loader); if (in == null) { throw new IOException("Could not find resource " + resource); } return in; } InputStream getResourceAsStream(String resource, ClassLoader\[\] classLoader) { for (ClassLoader cl : classLoader) { if (null != cl) { // try to find the resource as passed InputStream returnValue = cl.getResourceAsStream(resource); // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource if (null == returnValue) { returnValue = cl.getResourceAsStream("/" + resource); } if (null != returnValue) { return returnValue; } } } return null; }
+    public static InputStream getResourceAsStream(ClassLoader loader, String resource) throws IOException { 
+        InputStream in = classLoaderWrapper.getResourceAsStream(resource, loader); 
+        if (in == null) { 
+            throw new IOException("Could not find resource " + resource); 
+        } 
+        return in; 
+    } 
+    
+    InputStream getResourceAsStream(String resource, ClassLoader\[\] classLoader) { 
+        for (ClassLoader cl : classLoader) { 
+            if (null != cl) { // try to find the resource as passed 
+                InputStream returnValue = cl.getResourceAsStream(resource); // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource 
+                if (null == returnValue) { 
+                    returnValue = cl.getResourceAsStream("/" + resource); 
+                } 
+                if (null != returnValue) { 
+                    return returnValue; 
+                } 
+            } 
+        } 
+        return null; 
+    }
 
 ### 四、配置文件解析
 
@@ -181,7 +202,7 @@ cache-ref，cache 和缓存相关，parameterMap 目前已很少使用，这里�
 
 此处需要注意的点为：解析 select 属性与 resultMap 属性，因为这块涉及嵌套查询与嵌套映射（后面在结果集映射时会讲下这块）。如果 result 节点中存在 select 属性则认为是嵌套查询，而嵌套映射的判断条件如下：
 
-String nestedResultMap = context.getStringAttribute("resultMap", processNestedResultMappings(context, Collections.<ResultMapping> emptyList()));
+    String nestedResultMap = context.getStringAttribute("resultMap", processNestedResultMappings(context, Collections.<ResultMapping> emptyList()));
 
 如果 result 节点存在 resultMap 则肯定是嵌套映射：
 
@@ -374,7 +395,10 @@ insert，update，delete，select 命令它们实现原理都差不多，select 
 
 MapperMethod.executeMany 会调用 DefaultSqlSession.selectList，而 selectList 方法实现如下：
 
-// 获取 MappedStatement，在 mapper 解析的时候注册到 configuration 对象中的 MappedStatement ms = configuration.getMappedStatement(statement); // 默认为 SimpleExecutor，sql 的执行类 return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO\_RESULT\_HANDLER);
+    // 获取 MappedStatement，在 mapper 解析的时候注册到 configuration 对象中的 
+    MappedStatement ms = configuration.getMappedStatement(statement); 
+    // 默认为 SimpleExecutor，sql 的执行类 
+    return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO\_RESULT\_HANDLER);
 
 Executor.query：
 
@@ -409,7 +433,12 @@ BoundSql 为最终执行的 sql，为处理完动态节点后的 sql。通过 Sq
 
 **（1）SqlNode.apply**
 
-public boolean apply(DynamicContext context) { for (SqlNode sqlNode : contents) { sqlNode.apply(context); } return true; }
+    public boolean apply(DynamicContext context) { 
+        for (SqlNode sqlNode : contents) { 
+            sqlNode.apply(context); 
+        }
+        return true; 
+    }
 
 在此处处理 IfSqlNode，MixedSqlNode，ForEachSqlNode，TrimSqlNode 这些动态节点。
 
