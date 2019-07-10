@@ -97,22 +97,22 @@ MyBatis 源码解析：通过源码深入理解 SQL 的执行过程
     private void parseConfiguration(XNode root) { 
         try { 
             Properties settings = settingsAsPropertiess(
-                root.evalNode("settings")); //issue #117 read properties first 
-                propertiesElement(root.evalNode("properties")); 
-                loadCustomVfs(settings); 
-                typeAliasesElement(root.evalNode("typeAliases")); 
-                pluginElement(root.evalNode("plugins")); 
-                objectFactoryElement(root.evalNode("objectFactory")); 
-                objectWrapperFactoryElement(root.evalNode("objectWrapperFactory")); 
-                reflectionFactoryElement(root.evalNode("reflectionFactory")); 
-                settingsElement(settings); // read it after objectFactory and objectWrapperFactory issue #631 
-                environmentsElement(root.evalNode("environments")); 
-                databaseIdProviderElement(root.evalNode("databaseIdProvider")); 
-                typeHandlerElement(root.evalNode("typeHandlers")); 
-                mapperElement(root.evalNode("mappers")); 
-                } catch (Exception e) { 
-                    throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e); 
-                } 
+            root.evalNode("settings")); //issue #117 read properties first 
+            propertiesElement(root.evalNode("properties")); 
+            loadCustomVfs(settings); 
+            typeAliasesElement(root.evalNode("typeAliases")); 
+            pluginElement(root.evalNode("plugins")); 
+            objectFactoryElement(root.evalNode("objectFactory")); 
+            objectWrapperFactoryElement(root.evalNode("objectWrapperFactory")); 
+            reflectionFactoryElement(root.evalNode("reflectionFactory")); 
+            settingsElement(settings); // read it after objectFactory and objectWrapperFactory issue #631 
+            environmentsElement(root.evalNode("environments")); 
+            databaseIdProviderElement(root.evalNode("databaseIdProvider")); 
+            typeHandlerElement(root.evalNode("typeHandlers")); 
+            mapperElement(root.evalNode("mappers")); 
+            } catch (Exception e) { 
+                throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e); 
+        } 
     }
 
 通过 XPathParser 解析 configuration 节点下的 properties，settings，typeAliases，plugins，objectFactory，objectWrapperFactory，reflectionFactory，environments，databaseIdProvider，typeHandlers，mappers 等节点。
@@ -410,7 +410,13 @@ Executor.query：
 
 #### 5.1 getBoundSql
 
-public class BoundSql { private String sql; private List<ParameterMapping> parameterMappings; private Object parameterObject; private Map<String, Object> additionalParameters; private MetaObject metaParameters;
+    public class BoundSql { 
+        private String sql; private List<ParameterMapping> parameterMappings; 
+        private Object parameterObject; 
+        private Map<String, Object> additionalParameters; 
+        private MetaObject metaParameters;
+        ...
+    }
 
 BoundSql 为最终执行的 sql，为处理完动态节点后的 sql。通过 SqlSource 来获取 BoundSql，通过前面我们了解到存在两种 SqlSource：DynamicSqlSource，RawSqlSource。
 
@@ -494,7 +500,10 @@ RawSqlSource 相比 DynamicSqlSource 就简单多了，在创建 RawSqlSource �
 
 在上面的小节中生成了最终的 sql，下面就可以执行 sql 了。我们以 SimpleExecutor 为例来看下 sql 的执行过程：
 
-Configuration configuration = ms.getConfiguration(); // 创建 StatementHandler，默认为 PreparedStatementHandler StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql); stmt = prepareStatement(handler, ms.getStatementLog()); return handler.<E>query(stmt, resultHandler);
+    Configuration configuration = ms.getConfiguration(); // 创建 StatementHandler，默认为 PreparedStatementHandler 
+    StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql); 
+    stmt = prepareStatement(handler, ms.getStatementLog()); 
+    return handler.<E>query(stmt, resultHandler);
 
 **（1）prepareStatement**
 
@@ -583,7 +592,10 @@ Configuration configuration = ms.getConfiguration(); // 创建 StatementHandler�
 
 映射在 resultMap 中配置的列，主要包括两步：获取属性的值和设置属性的值。
 
-// 获取属性的值 Object value = getPropertyMappingValue(rsw.getResultSet(), metaObject, propertyMapping, lazyLoader, columnPrefix); // 设置属性的值 , 通过反射来设置 metaObject.setValue(property, value);
+    // 获取属性的值 
+    Object value = getPropertyMappingValue(rsw.getResultSet(), metaObject, propertyMapping, lazyLoader, columnPrefix); 
+    // 设置属性的值 , 通过反射来设置 
+    metaObject.setValue(property, value);
 
 获取属性的值：
 
@@ -627,7 +639,7 @@ Configuration configuration = ms.getConfiguration(); // 创建 StatementHandler�
 
 这块代码稍微有点绕，我通过例子来说明吧。
 
-select l.id,course\_name,u.id uid,u.user\_name from jdams\_school\_live l left join jdams\_school\_live\_users u on l.id = u.live\_id where l.yn =1 and l.id = 121 order by course\_start\_time
+    select l.id,course\_name,u.id uid,u.user\_name from jdams\_school\_live l left join jdams\_school\_live\_users u on l.id = u.live\_id where l.yn =1 and l.id = 121 order by course\_start\_time
 
 我的 sql 很简单，查询出课程和参加课程的用户，结果集如下：
 
@@ -648,7 +660,31 @@ mybatis 的处理过程为：
 
 getRowValue：
 
-Object resultObject = partialObject; // 如果已经创建 LiveCoure 对象 if (resultObject != null) { final MetaObject metaObject = configuration.newMetaObject(resultObject); putAncestor(resultObject, resultMapId, columnPrefix); // 不用创建 LiveCouse 对象，直接处理嵌套映射即可 applyNestedResultMappings(rsw, resultMap, metaObject, columnPrefix, combinedKey, false); ancestorObjects.remove(resultMapId); } else { final ResultLoaderMap lazyLoader = new ResultLoaderMap(); // 创建 LiveCoure 对象，同简单映射 resultObject = createResultObject(rsw, resultMap, lazyLoader, columnPrefix); if (resultObject != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) { final MetaObject metaObject = configuration.newMetaObject(resultObject); boolean foundValues = !resultMap.getConstructorResultMappings().isEmpty(); // 自动映射，同简单映射 if (shouldApplyAutomaticMappings(resultMap, true)) { foundValues = applyAutomaticMappings(rsw, resultMap, metaObject, columnPrefix) || foundValues; } // 人工映射，同简单映射 foundValues = applyPropertyMappings(rsw, resultMap, metaObject, lazyLoader, columnPrefix) || foundValues; putAncestor(resultObject, resultMapId, columnPrefix); // 处理嵌套映射 foundValues = applyNestedResultMappings(rsw, resultMap, metaObject, columnPrefix, combinedKey, true) || foundValues; ancestorObjects.remove(resultMapId); foundValues = lazyLoader.size() > 0 || foundValues; resultObject = foundValues ? resultObject : null; } if (combinedKey != CacheKey.NULL\_CACHE\_KEY) { nestedResultObjects.put(combinedKey, resultObject); } }
+    Object resultObject = partialObject; // 如果已经创建 LiveCoure 对象 
+    if (resultObject != null) { 
+        final MetaObject metaObject = configuration.newMetaObject(resultObject); 
+        putAncestor(resultObject, resultMapId, columnPrefix);// 不用创建 LiveCouse 对象，直接处理嵌套映射即可 
+        applyNestedResultMappings(rsw, resultMap, metaObject, columnPrefix, combinedKey, false); 
+        ancestorObjects.remove(resultMapId); 
+    } else { 
+        final ResultLoaderMap lazyLoader = new ResultLoaderMap(); // 创建 LiveCoure 对象，同简单映射 
+        resultObject = createResultObject(rsw, resultMap, lazyLoader, columnPrefix); 
+        if (resultObject != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) { 
+            final MetaObject metaObject = configuration.newMetaObject(resultObject); 
+            boolean foundValues = !resultMap.getConstructorResultMappings().isEmpty(); // 自动映射，同简单映射 
+            if (shouldApplyAutomaticMappings(resultMap, true)) { 
+                foundValues = applyAutomaticMappings(rsw, resultMap, metaObject, columnPrefix) || foundValues; 
+            } // 人工映射，同简单映射 
+            foundValues = applyPropertyMappings(rsw, resultMap, metaObject, lazyLoader, columnPrefix) || foundValues; 
+            putAncestor(resultObject, resultMapId, columnPrefix); // 处理嵌套映射 
+            foundValues = applyNestedResultMappings(rsw, resultMap, metaObject, columnPrefix, combinedKey, true) || foundValues; 
+            ancestorObjects.remove(resultMapId); 
+            foundValues = lazyLoader.size() > 0 || foundValues; 
+            resultObject = foundValues ? resultObject : null; 
+        } if (combinedKey != CacheKey.NULL\_CACHE\_KEY) { 
+            nestedResultObjects.put(combinedKey, resultObject); 
+        } 
+    }
 
 在处理嵌套映射属性时，主要是创建对象，设置属性值，然后添加到外层对象的 colletion 属性中。
 
