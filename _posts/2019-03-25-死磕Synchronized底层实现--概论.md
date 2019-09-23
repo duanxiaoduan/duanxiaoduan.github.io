@@ -21,58 +21,58 @@ synchronized简介
 
 Java中提供了两种实现同步的基础语义：`synchronized`方法和`synchronized`块， 我们来看个demo：
 
-public class SyncTest {
-    public void syncBlock(){
-        synchronized (this){
-            System.out.println("hello block");
+    public class SyncTest {
+        public void syncBlock(){
+            synchronized (this){
+                System.out.println("hello block");
+            }
+        }
+        public synchronized void syncMethod(){
+            System.out.println("hello method");
         }
     }
-    public synchronized void syncMethod(){
-        System.out.println("hello method");
-    }
-}
 
 当SyncTest.java被编译成class文件的时候，`synchronized`关键字和`synchronized`方法的字节码略有不同，我们可以用`javap -v` 命令查看class文件对应的JVM字节码信息，部分信息如下：
 
-{
-  public void syncBlock();
-    descriptor: ()V
-    flags: ACC_PUBLIC
-    Code:
-      stack=2, locals=3, args_size=1
-         0: aload_0
-         1: dup
-         2: astore_1
-         3: monitorenter				 	  // monitorenter指令进入同步块
-         4: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
-         7: ldc           #3                  // String hello block
-         9: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
-        12: aload_1
-        13: monitorexit						  // monitorexit指令退出同步块
-        14: goto          22
-        17: astore_2
-        18: aload_1
-        19: monitorexit						  // monitorexit指令退出同步块
-        20: aload_2
-        21: athrow
-        22: return
-      Exception table:
-         from    to  target type
-             4    14    17   any
-            17    20    17   any
- 
-
-  public synchronized void syncMethod();
-    descriptor: ()V
-    flags: ACC_PUBLIC, ACC_SYNCHRONIZED      //添加了ACC_SYNCHRONIZED标记
-    Code:
-      stack=2, locals=1, args_size=1
-         0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
-         3: ldc           #5                  // String hello method
-         5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
-         8: return
- 
-}
+    {
+      public void syncBlock();
+        descriptor: ()V
+        flags: ACC_PUBLIC
+        Code:
+          stack=2, locals=3, args_size=1
+             0: aload_0
+             1: dup
+             2: astore_1
+             3: monitorenter				 	  // monitorenter指令进入同步块
+             4: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+             7: ldc           #3                  // String hello block
+             9: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+            12: aload_1
+            13: monitorexit						  // monitorexit指令退出同步块
+            14: goto          22
+            17: astore_2
+            18: aload_1
+            19: monitorexit						  // monitorexit指令退出同步块
+            20: aload_2
+            21: athrow
+            22: return
+          Exception table:
+             from    to  target type
+                 4    14    17   any
+                17    20    17   any
+     
+    
+      public synchronized void syncMethod();
+        descriptor: ()V
+        flags: ACC_PUBLIC, ACC_SYNCHRONIZED      //添加了ACC_SYNCHRONIZED标记
+        Code:
+          stack=2, locals=1, args_size=1
+             0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+             3: ldc           #5                  // String hello method
+             5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+             8: return
+     
+    }
 
 从上面的中文注释处可以看到，对于`synchronized`关键字而言，`javac`在编译时，会生成对应的`monitorenter`和`monitorexit`指令分别对应`synchronized`同步块的进入和退出，有两个`monitorexit`指令的原因是：为了保证抛异常的情况下也能释放锁，所以`javac`为同步代码块添加了一个隐式的try-finally，在finally中会调用`monitorexit`命令释放锁。而对于`synchronized`方法而言，`javac`为其生成了一个`ACC_SYNCHRONIZED`关键字，在JVM进行方法调用时，发现调用的方法被`ACC_SYNCHRONIZED`修饰，则会先尝试获得锁。
 
@@ -155,25 +155,25 @@ JVM的开发者发现在很多情况下，在Java程序运行时，同步块中�
 
 Java是支持多线程的语言，因此在很多二方包、基础库中为了保证代码在多线程的情况下也能正常运行，也就是我们常说的线程安全，都会加入如`synchronized`这样的同步语义。但是在应用在实际运行时，很可能只有一个线程会调用相关同步方法。比如下面这个demo：
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class SyncDemo1 {
-
-    public static void main(String\[\] args) {
-        SyncDemo1 syncDemo1 = new SyncDemo1();
-        for (int i = 0; i < 100; i++) {
-            syncDemo1.addString("test:" + i);
+    import java.util.ArrayList;
+    import java.util.List;
+    
+    public class SyncDemo1 {
+    
+        public static void main(String\[\] args) {
+            SyncDemo1 syncDemo1 = new SyncDemo1();
+            for (int i = 0; i < 100; i++) {
+                syncDemo1.addString("test:" + i);
+            }
         }
+    
+        private List<String> list = new ArrayList<>();
+    
+        public synchronized void addString(String s) {
+            list.add(s);
+        }
+    
     }
-
-    private List<String> list = new ArrayList<>();
-
-    public synchronized void addString(String s) {
-        list.add(s);
-    }
-
-}
 
 在这个demo中为了保证对list操纵时线程安全，对addString方法加了`synchronized`的修饰，但实际使用时却只有一个线程调用到该方法，对于轻量级锁而言，每次调用addString时，加锁解锁都有一个CAS操作；对于重量级锁而言，加锁也会有一个或多个CAS操作（这里的’一个‘、’多个‘数量词只是针对该demo，并不适用于所有场景）。
 
